@@ -1,0 +1,22 @@
+[project]
+name = "paritex"
+description = "Check PDF <-> LaTeX parity for paper reconstruction"
+dynamic = ["version"]
+authors = [{name = "Endre Márk Borza", email = "endremborza@gmail.com"}]
+license = {file = "LICENSE"}
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/endremborza/paritex"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "paritex/__init__.py"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
