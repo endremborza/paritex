@@ -23,6 +23,12 @@ build-backend = "hatchling.build"
 [tool.hatch.version]
 path = "paritex/__init__.py"
 
+[tool.hatch.build.targets.wheel]
+packages = ["paritex"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
 [tool.ruff.lint]
 select = ["E", "F", "I"]
 

@@ -24,10 +24,12 @@ bitcoin/
   original.pdf   # the source paper
   assets/        # raster images extracted from it, for \includegraphics
   main.tex       # the reconstruction (backend-written)
-  refs.bib       # its bibliography
+  refs.bib       # its bibliography — always a real file, enforced by the gate
   main.pdf       # tectonic render
   report.json    # parity ratio, page counts, all divergences
 ```
+
+The file names are the produced-files contract: consumers import `ORIGINAL`, `MAIN_TEX`, `REFS_BIB`, `REBUILT`, `ASSETS`, `REPORT` from `paritex` instead of restating them, and paritex treats files it did not create as opaque, so a consumer can layer its own files into the same directory.
 
 The steps are also available separately:
 

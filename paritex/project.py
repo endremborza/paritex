@@ -1,19 +1,18 @@
 import json
+import os
 import shutil
 import subprocess
+from collections.abc import Callable
 from dataclasses import asdict
 from pathlib import Path
 
 from paritex import prompts
-from paritex.core import parity
-from paritex.extract import page_count, pdf_images, pdf_text, pdf_words
-from paritex.types import Backend, ProjectReport, RenderError
+from paritex.core import page_starts, parity
+from paritex.extract import page_count, pdf_images, pdf_page_words, pdf_text, pdf_words
+from paritex.gate import check_bib
+from paritex.layout import ASSETS, MAIN_TEX, ORIGINAL, REBUILT, REFS_BIB, REPORT
+from paritex.types import Backend, BibError, Progress, ProjectReport, RenderError
 
-ORIGINAL = "original.pdf"
-MAIN_TEX = "main.tex"
-REBUILT = "main.pdf"
-ASSETS = "assets"
-REPORT = "report.json"
 _LOG_TAIL = 4000
 _FEEDBACK_DIVERGENCES = 40
 _FEEDBACK_WIDTH = 160
