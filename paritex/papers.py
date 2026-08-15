@@ -20,7 +20,7 @@ def fetch(dest: Path, names: list[str] | None = None) -> list[Path]:
             request = urllib.request.Request(
                 DEMO_PAPERS[name], headers={"User-Agent": "paritex-demo-fetch"}
             )
-            with urllib.request.urlopen(request) as response:
+            with urllib.request.urlopen(request, timeout=60) as response:
                 target.write_bytes(response.read())
         out.append(target)
     return out

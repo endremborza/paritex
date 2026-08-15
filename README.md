@@ -82,11 +82,16 @@ timeout = 3600
 mode = "generate"              # stdout becomes main.tex (code fences stripped)
 argv = ["llm", "-m", "gpt-5"]  # no {prompt} in argv -> prompt is piped to stdin
 prompt_file = "my-prompt.txt"  # override the default prompt template
+require_env = ["OPENAI_API_KEY"]  # fail loudly before spawning if unset
+drop_env = []                     # scrub inherited vars from the child
+env = { LLM_TEMPERATURE = "0" }   # set vars for the child
 ```
 
-Per-backend `prompt`, `feedback`, and `compile_feedback` templates (inline or `*_file`) override the defaults in `paritex/prompts.py`; placeholders like `{pdf}`, `{assets}`, `{text}`, `{ratio}`, `{feedback}`, `{log}` are substituted literally, so LaTeX braces are safe.
+Per-backend `prompt`, `feedback`, `compile_feedback`, and `bib_feedback` templates (inline or `*_file`) override the defaults in `paritex/prompts.py`; placeholders like `{pdf}`, `{main_tex}`, `{refs_bib}`, `{assets}`, `{text}`, `{ratio}`, `{feedback}`, `{violations}`, `{log}` are substituted literally, so LaTeX braces are safe.
 
-Tables, figures, and bibliographies are covered by the default prompts: tables must be rebuilt as `tabular` content, extracted `assets/` images are offered for `\includegraphics` (with TikZ as the fallback for vector diagrams), and references go through `refs.bib` so tectonic's bibtex pass reproduces the reference list — all of which the word-level parity check then verifies.
+Consumers with their own config carry the same spec shape: `parse_backend(name, spec, base)` builds a `Backend` from a mapping with these keys, so one AI-invocation schema serves every tool without a `paritex.toml` in sight.
+
+Tables, figures, and bibliographies are covered by the default prompts: tables must be rebuilt as `tabular` content, extracted `assets/` images are offered for `\includegraphics` (with TikZ as the fallback for vector diagrams), and references go through `refs.bib` — which the gate then enforces and the word-level parity check verifies.
 
 ## Demo papers
 
