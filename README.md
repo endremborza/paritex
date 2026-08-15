@@ -97,6 +97,8 @@ from paritex import init_project, load_backends, reconstruct
 
 backends, default = load_backends()
 project = init_project(Path("papers/gan.pdf"))
-report = reconstruct(project, backends[default], rounds=3, target=0.98)
+report = reconstruct(project, backends[default], rounds=3, target=0.98, on_event=print)
 print(report.parity.ratio, report.pages_original, report.pages_rebuilt)
 ```
+
+`on_event` receives a `Progress` per step — backend start, render ok/fail, gate ok/fail, parity ratio and divergence count per round — so a consumer can stream run progress to a terminal or UI instead of wrapping the loop in threads.
