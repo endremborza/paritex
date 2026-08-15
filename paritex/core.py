@@ -18,7 +18,13 @@ def parity(
     rebuilt: Sequence[str],
     starts: Sequence[int] | None = None,
 ) -> ParityReport:
-    """Word-level diff; `starts` (from page_starts) adds original-page numbers."""
+    """Word-level diff; `starts` (from page_starts) adds original-page numbers.
+
+    SequenceMatcher with autojunk off is quadratic in the worst case. That is the
+    right trade at paper scale - a few thousand words, where autojunk's
+    popular-element heuristic would silently skip genuinely repeated text — but
+    it is why this is sized for papers, not for book-length documents.
+    """
     sm = SequenceMatcher(a=original, b=rebuilt, autojunk=False)
     divergences = [
         Divergence(
