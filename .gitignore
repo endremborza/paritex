@@ -117,3 +117,6 @@ dmypy.json
 .idea
 .vscode
 dask-worker-space/
+# paritex demo data
+papers/
+projects/
