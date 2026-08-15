@@ -1,6 +1,6 @@
 """PDF -> LaTeX paper reconstruction with AI backends, and parity evaluation"""
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 from paritex.backends import BUILTIN as BUILTIN
 from paritex.backends import claude_backend as claude_backend
