@@ -16,6 +16,7 @@ from paritex.types import Backend, BibError, Progress, ProjectReport, RenderErro
 _LOG_TAIL = 4000
 _FEEDBACK_DIVERGENCES = 40
 _FEEDBACK_WIDTH = 160
+_DEFAULT_RENDER_TIMEOUT = 600.0
 
 
 def init_project(pdf: Path, project: Path | None = None) -> Path:
@@ -30,13 +31,29 @@ def init_project(pdf: Path, project: Path | None = None) -> Path:
 
 def render(project: Path, tex: str = MAIN_TEX) -> Path:
     """tectonic compile. PARITEX_SEARCH_PATHS (colon-separated dirs) adds
-    `-Z search-path` entries for classes outside tectonic's bundle (llncs & co)."""
-    result = subprocess.run(
-        ["tectonic", *_search_paths(), tex], cwd=project, capture_output=True, text=True
-    )
+    `-Z search-path` entries for classes outside tectonic's bundle (llncs & co).
+
+    Bounded by PARITEX_RENDER_TIMEOUT (seconds, default 600): the LaTeX being
+    compiled is machine-written, and a document that never terminates must
+    surface as a failed round rather than hang the caller forever.
+    """
+    try:
+        result = subprocess.run(
+            ["tectonic", *_search_paths(), tex],
+            cwd=project,
+            capture_output=True,
+            text=True,
+            timeout=_render_timeout(),
+        )
+    except subprocess.TimeoutExpired as err:
+        raise RenderError(f"tectonic timed out after {err.timeout:.0f}s") from None
     if result.returncode:
         raise RenderError((result.stderr + result.stdout)[-_LOG_TAIL:])
     return project / (tex.removesuffix(".tex") + ".pdf")
+
+
+def _render_timeout() -> float:
+    return float(os.environ.get("PARITEX_RENDER_TIMEOUT", _DEFAULT_RENDER_TIMEOUT))
 
 
 def _search_paths() -> list[str]:
