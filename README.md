@@ -36,12 +36,35 @@ paritex eval attention               # compare main.pdf to original.pdf
 paritex parity original.pdf other.pdf  # bare two-PDF comparison
 ```
 
+## The report
+
+`report.json` is a serialization contract — version-stamped, deterministically ordered, meant to be committed and rendered by consumers:
+
+```json
+{
+ "paritex_version": "0.1.0",
+ "parity": {
+  "ratio": 0.992,
+  "divergences": [
+   {"kind": "missing", "original": "...", "rebuilt": "...", "page": 3}
+  ]
+ },
+ "pages_original": 15,
+ "pages_rebuilt": 15
+}
+```
+
+`kind` is `missing` / `added` / `changed`, `page` is where the divergence sits in the original — enough context to show which parts of the paper survived reconstruction verbatim.
+
 ## Backends
 
-The AI backend is a configured command; two are built in (`paritex backends` lists them):
+The AI backend is a configured command; three are built in (`paritex backends` lists them):
 
-- `claude` (default) — runs the [Claude Code](https://claude.com/claude-code) CLI as an agent inside the project dir; it reads `original.pdf` itself, writes `main.tex`/`refs.bib`, and may run tectonic to self-check.
-- `claude-gen` — plain one-shot generation: the prompt (with the extracted paper text) goes in, LaTeX comes out on stdout.
+- `claude-code` (default) — runs the [Claude Code](https://claude.com/claude-code) CLI as an agent inside the project dir; it reads `original.pdf` itself, writes `main.tex`/`refs.bib`, and may run tectonic to self-check. **Auth: the box's Claude Code login.** The Anthropic auth env vars (`ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`) are scrubbed from the child environment, so a key exported in your shell can never silently take precedence over the login and bill your API account.
+- `claude-api` — the same agent command, but **billed to the API**: it refuses to start unless `ANTHROPIC_API_KEY` is set, and passes it through. Spending credits is an explicit choice of backend, never a side effect of the environment.
+- `claude-gen` — plain one-shot generation on the box login: the prompt (with the extracted paper text) goes in, LaTeX comes out on stdout; the bibliography arrives as a `filecontents*` block that paritex materializes as `refs.bib`.
+
+All three come from one factory, `claude_backend(name, auth="login"|"api", allowed_tools=..., mode=...)`, which consumers use to build their own flavors (e.g. with extra allowed tools). Auth is expressed through three generic spec keys any backend can use: `env` (a table of variables set for the child), `drop_env` (variables scrubbed from it), and `require_env` (variables that must be present or the run fails before spawning).
 
 Any command can be a backend via `paritex.toml` (looked up in the working directory, then `~/.config/paritex.toml`, or passed with `--config`):
 
