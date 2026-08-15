@@ -23,8 +23,13 @@ def pdf_text(path: str | Path) -> str:
         return "\n".join(str(page.get_text()) for page in doc)
 
 
+def pdf_page_words(path: str | Path) -> list[list[str]]:
+    with pymupdf.open(path) as doc:
+        return [normalize(str(page.get_text())).split() for page in doc]
+
+
 def pdf_words(path: str | Path) -> list[str]:
-    return normalize(pdf_text(path)).split()
+    return [word for page in pdf_page_words(path) for word in page]
 
 
 def page_count(path: str | Path) -> int:

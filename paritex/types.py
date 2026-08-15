@@ -10,6 +10,7 @@ class Divergence:
     kind: Kind
     original: str
     rebuilt: str
+    page: int | None = None
 
 
 @dataclass(frozen=True)

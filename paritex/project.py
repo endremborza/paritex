@@ -200,10 +200,10 @@ def _summarize(report: ProjectReport) -> str:
         return text if len(text) <= _FEEDBACK_WIDTH else text[:_FEEDBACK_WIDTH] + "..."
 
     lines = [
-        f"- {d.kind}: {clip(d.original)!r} -> {clip(d.rebuilt)!r}"
+        f"- {d.kind} (p{d.page}): {clip(d.original)!r} -> {clip(d.rebuilt)!r}"
         for d in divergences[:_FEEDBACK_DIVERGENCES]
     ]
     if len(divergences) > _FEEDBACK_DIVERGENCES:
         rest = len(divergences) - _FEEDBACK_DIVERGENCES
-        lines.append(f"... and {rest} more (see report.json)")
+        lines.append(f"... and {rest} more (see {REPORT})")
     return "\n".join(lines)

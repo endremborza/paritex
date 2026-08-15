@@ -58,7 +58,10 @@ def main() -> None:
     args = parser.parse_args()
     match args.command:
         case "parity":
-            _print_parity(parity(pdf_words(args.original), pdf_words(args.rebuilt)))
+            pages = pdf_page_words(args.original)
+            words = [word for page in pages for word in page]
+            report = parity(words, pdf_words(args.rebuilt), page_starts(pages))
+            _print_parity(report)
         case "fetch":
             for path in fetch(args.dest, args.names or None):
                 print(path)
@@ -116,6 +119,7 @@ def _print_parity(report: ParityReport) -> None:
     divergences = report.divergences
     print(f"parity: {report.ratio:.1%}, {len(divergences)} divergences")
     for d in divergences[:_PRINT_DIVERGENCES]:
-        print(f"  {d.kind}: {d.original[:70]!r} -> {d.rebuilt[:70]!r}")
+        where = f" (p{d.page})" if d.page is not None else ""
+        print(f"  {d.kind}{where}: {d.original[:70]!r} -> {d.rebuilt[:70]!r}")
     if len(divergences) > _PRINT_DIVERGENCES:
         print(f"  ... and {len(divergences) - _PRINT_DIVERGENCES} more (report.json)")
