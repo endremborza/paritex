@@ -1,0 +1,23 @@
+name: Python Test
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - uses: astral-sh/setup-uv@v7
+      with:
+        python-version: '3.12'
+        enable-cache: true
+    - name: Install tectonic (most of the suite self-skips without it)
+      run: curl -fsSL "https://github.com/tectonic-typesetting/tectonic/releases/download/tectonic%400.15.0/tectonic-0.15.0-x86_64-unknown-linux-musl.tar.gz" | sudo tar -xz -C /usr/local/bin
+    - run: uv tool install branthebuilder
+    - run: branb test
