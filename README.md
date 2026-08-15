@@ -6,14 +6,16 @@ Reconstruct papers as LaTeX with an AI backend, re-render with [tectonic](https:
 
 Companion to [hallubib](https://github.com/endremborza/hallubib): hallubib asks *are your references real?*, paritex asks *is this LaTeX really your paper?*
 
+A paper's source is not recoverable from its rendering, so what the backend produces is a guess — paritex makes the guess earn its keep. Every round must survive three checks: tectonic must compile it, a structural bibliography gate rejects any round whose `refs.bib` is missing, empty, inlined as `thebibliography`, or short of the keys the text cites, and word-level parity against the original scores what survived. Failures feed back to the backend; the surviving evidence lands in `report.json`. Whether the references name real papers is hallubib's question, asked of the `refs.bib` this contract guarantees exists.
+
 ## Usage
 
 ```bash
 paritex fetch                        # download the demo paper set into papers/
-paritex reconstruct papers/bitcoin.pdf --rounds 3   # init + AI reconstruct + render + eval
+paritex reconstruct papers/bitcoin.pdf --rounds 3   # init + AI reconstruct + render + gate + eval
 ```
 
-`reconstruct` on a PDF creates a *reconstruction project* directory (`bitcoin/`) and runs the loop: AI backend writes `main.tex` (+ `refs.bib`), tectonic renders it to `main.pdf`, and the result is compared word-level against the original. Render failures and text divergences are fed back to the backend for up to `--rounds` passes, stopping early at `--target` parity.
+`reconstruct` on a PDF creates a *reconstruction project* directory (`bitcoin/`) and runs the loop: AI backend writes `main.tex` (+ `refs.bib`), tectonic renders it to `main.pdf`, the bibliography gate checks structure, and the result is compared word-level against the original. Render failures, gate violations, and text divergences are fed back to the backend for up to `--rounds` passes, stopping early at `--target` parity; a render or gate failure on the final round raises instead of passing quietly.
 
 A project directory is self-contained:
 
